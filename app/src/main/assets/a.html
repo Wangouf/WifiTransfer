@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WIFI传书</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        #status {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+<h1>WIFI传书</h1>
+<input type="file" id="fileInput" style="display: none;">
+<button id="uploadButton">选择文件并上传</button>
+<div id="status"></div>
+
+<script>
+    document.getElementById('uploadButton').addEventListener('click', function() {
+        document.getElementById('fileInput').click();
+    });
+
+    document.getElementById('fileInput').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            uploadFile(file);
+        }
+    });
+
+    function uploadFile(file) {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        document.getElementById('status').textContent = '上传中......';
+
+        fetch('/upload', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'filename': encodeURIComponent(file.name),
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('status').textContent = `${file.name} 上传成功`;
+            } else {
+                document.getElementById('status').textContent = `${file.name} 上传失败`;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('status').textContent = `${file.name} 上传失败`;
+        });
+    }
+</script>
+</body>
+</html>
